@@ -1,13 +1,22 @@
-import HealthCheck from "./components/HealthCheck";
-import TestTable from "./components/TestTable";
+// src/App.jsx
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 function App() {
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Food Delivery Backend Health</h1>
-      <HealthCheck />
-      <TestTable />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+      </Routes>
+    </Router>
   );
 }
 
