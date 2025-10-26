@@ -4,7 +4,7 @@ const HealthCheck = () => {
   const [health, setHealth] = useState("Loading...");
 
   useEffect(() => {
-    fetch("http://localhost:8080/health")
+    fetch("http://localhost:8080/api/health")
       .then((res) => res.text())
       .then(setHealth)
       .catch(() => setHealth("Error"));
