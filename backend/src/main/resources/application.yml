@@ -10,3 +10,14 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  servlet:
+    session:
+      timeout: 1m
+
+jwt:
+  # 24 hours (86400000 ms) is the current default in JwtService.
+  # Adjust this value to change how long the token remains valid.
+  expiration: 86400000
+  # secret: your-secret-here (already has a default in code)

@@ -1,13 +1,14 @@
-// src/pages/Signup.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
 import Input from "../components/Input";
 import FormButton from "../components/FormButton";
 import { register } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 export default function Signup() {
   const navigate = useNavigate();
+  const { login: authLogin } = useAuth();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -45,16 +46,8 @@ export default function Signup() {
     try {
       const { confirmPassword, ...registerData } = formData;
       const response = await register(registerData);
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          email: response.data.email,
-          fullName: response.data.fullName,
-          role: response.data.role,
-        })
-      );
-      navigate("/dashboard");
+      authLogin(response, response.token);
+      navigate("/login");
     } catch (err) {
       setError(
         err.response?.data?.message || "Registration failed. Please try again."
@@ -141,20 +134,20 @@ export default function Signup() {
           <input
             type="checkbox"
             required
-            className="mt-1 rounded text-orange-500 focus:ring-orange-500"
+            className="mt-1 rounded text-primary-500 focus:ring-primary-500"
           />
-          <label className="ml-2 text-sm text-gray-700">
+          <label className="ml-2 text-sm text-earth-700">
             I agree to the{" "}
             <a
               href="#"
-              className="text-orange-600 hover:text-orange-700 font-medium"
+              className="text-brand-DEFAULT hover:text-brand-dark font-medium"
             >
               Terms of Service
             </a>{" "}
             and{" "}
             <a
               href="#"
-              className="text-orange-600 hover:text-orange-700 font-medium"
+              className="text-brand-DEFAULT hover:text-brand-dark font-medium"
             >
               Privacy Policy
             </a>

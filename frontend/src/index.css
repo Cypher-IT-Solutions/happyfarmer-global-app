@@ -1,4 +1,42 @@
 /* src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+    background-color: #fdfbf7;
+    /* earth-50 */
+    font-family: 'Inter', sans-serif;
+    color: #4d3d2a;
+    /* earth-900 */
+    @apply antialiased;
+}
+
+@layer utilities {
+    .anim-fade-in {
+        animation: fadeIn 0.15s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+}
