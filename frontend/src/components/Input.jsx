@@ -32,9 +32,8 @@ export default function Input({
           onChange={onChange}
           required={required}
           placeholder={placeholder}
-          className={`w-full ${
-            icon ? "pl-10" : "pl-4"
-          } pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition outline-none`}
+          className={`w-full ${icon ? "pl-10" : "pl-4"
+            } pr-4 py-3 border border-earth-300 rounded-lg focus:ring-2 focus:ring-brand-DEFAULT focus:border-transparent transition outline-none`}
         />
       </div>
     </div>

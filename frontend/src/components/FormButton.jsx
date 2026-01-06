@@ -4,7 +4,7 @@ export default function FormButton({ text, loading = false, type = "submit" }) {
     <button
       type={type}
       disabled={loading}
-      className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 rounded-lg font-semibold hover:from-orange-600 hover:to-red-600 transition transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+      className="w-full bg-gradient-to-r from-primary-600 to-brand text-white py-3 rounded-lg font-semibold hover:from-primary-700 hover:to-brand-dark transition transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
     >
       {loading ? (
         <span className="flex items-center justify-center">

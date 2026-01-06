@@ -1,13 +1,16 @@
-// src/pages/Login.jsx
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
 import Input from "../components/Input";
 import FormButton from "../components/FormButton";
 import { login } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login: authLogin } = useAuth();
+  const isExpired = new URLSearchParams(location.search).get('expired') === 'true';
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -30,16 +33,8 @@ export default function Login() {
 
     try {
       const response = await login(formData);
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          email: response.data.email,
-          fullName: response.data.fullName,
-          role: response.data.role,
-        })
-      );
-      navigate("/dashboard");
+      authLogin(response, response.token);
+      navigate("/");
     } catch (err) {
       setError(
         err.response?.data?.message || "Login failed. Please try again."
@@ -57,6 +52,13 @@ export default function Login() {
       onLinkClick={() => navigate("/signup")}
     >
       <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+        {isExpired && !error && (
+          <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg flex items-center gap-2">
+            <span>ℹ️</span>
+            Your session has expired. Please sign in again.
+          </div>
+        )}
+
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
             {error}
@@ -91,13 +93,13 @@ export default function Login() {
           <label className="flex items-center">
             <input
               type="checkbox"
-              className="rounded text-orange-500 focus:ring-orange-500"
+              className="rounded text-primary-500 focus:ring-primary-500"
             />
-            <span className="ml-2 text-gray-700">Remember me</span>
+            <span className="ml-2 text-earth-700">Remember me</span>
           </label>
           <a
             href="#"
-            className="text-orange-600 hover:text-orange-700 font-medium"
+            className="text-brand-DEFAULT hover:text-brand-dark font-medium"
           >
             Forgot password?
           </a>
