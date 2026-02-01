@@ -21,6 +21,17 @@ const Cart = () => {
 
         if (cartItems.length === 0) return;
 
+        // Validation check
+        const hasIssues = cartItems.some(item =>
+            item.active === false ||
+            (item.maxStock != null && item.quantity > item.maxStock)
+        );
+
+        if (hasIssues) {
+            alert("Some items in your cart are unavailable or exceed stock limits. Please review your cart.");
+            return;
+        }
+
         setIsCheckingOut(true);
 
         try {
@@ -120,6 +131,18 @@ const Cart = () => {
                                     <p className="text-sm text-gray-500">{item.unit}</p>
                                     <p className="text-sm font-medium text-gray-900">${item.price}</p>
                                     <p className="text-xs text-gray-400 font-bold">Farmer: {item.farmerName || item.farmer?.name || 'Unknown'}</p>
+
+                                    {/* Availability Warnings */}
+                                    {item.active === false && (
+                                        <p className="text-xs font-bold text-red-600 mt-1">
+                                            ⚠️ Product Discontinued
+                                        </p>
+                                    )}
+                                    {item.maxStock != null && item.quantity > item.maxStock && (
+                                        <p className="text-xs font-bold text-orange-600 mt-1">
+                                            ⚠️ Only {item.maxStock} available
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                             <div className="flex items-center space-x-4">
@@ -157,8 +180,8 @@ const Cart = () => {
                         </button>
                         <button
                             onClick={handleCheckout}
-                            disabled={isCheckingOut}
-                            className="bg-primary-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors shadow hover:shadow-lg disabled:opacity-50"
+                            disabled={isCheckingOut || cartItems.some(i => i.active === false || (i.maxStock != null && i.quantity > i.maxStock))}
+                            className="bg-primary-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors shadow hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isCheckingOut ? 'Processing...' : 'Checkout'}
                         </button>

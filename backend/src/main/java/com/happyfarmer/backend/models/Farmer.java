@@ -17,6 +17,7 @@ public class Farmer {
 
     @OneToOne(optional = false)
     @JoinColumn(name = "user_id", unique = true, nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private User user;
 
     @Column(nullable = false)

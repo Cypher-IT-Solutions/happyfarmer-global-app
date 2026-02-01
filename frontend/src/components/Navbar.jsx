@@ -55,6 +55,9 @@ const Navbar = () => {
                                 <Link to="/farmers" className="border-transparent text-earth-700 hover:border-brand hover:text-brand-dark inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                                     Farmers
                                 </Link>
+                                <Link to="/favorites" className="border-transparent text-earth-700 hover:border-brand hover:text-brand-dark inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                    Favorites
+                                </Link>
                             </div>
                         )}
                         {viewMode === 'SELLER' && (
@@ -165,8 +168,8 @@ const Navbar = () => {
                         )}
                     </div>
                 </div>
-            </div>
-        </nav>
+            </div >
+        </nav >
     );
 };
 

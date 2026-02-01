@@ -9,6 +9,10 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
 
     if (!product) return null;
 
+    const isDiscontinued = product.active === false;
+    const isOutOfStock = !isDiscontinued && product.stockQuantity === 0;
+    const isAvailable = !isDiscontinued && !isOutOfStock;
+
     const handleIncrement = () => setQuantity(prev => Math.min(prev + 1, product.stockQuantity));
     const handleDecrement = () => setQuantity(prev => Math.max(prev - 1, 1));
 
@@ -85,7 +89,13 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
                                         <span className="text-[10px] text-earth-400 font-black uppercase tracking-widest mb-1 block">Availability</span>
                                         <div className="flex items-center gap-2">
                                             <Package size={18} className="text-earth-900" />
-                                            <span className="text-lg font-bold text-earth-900">{product.stockQuantity} in stock</span>
+                                            {isDiscontinued ? (
+                                                <span className="text-lg font-bold text-red-600">Discontinued</span>
+                                            ) : isOutOfStock ? (
+                                                <span className="text-lg font-bold text-orange-600">Out of Stock</span>
+                                            ) : (
+                                                <span className="text-lg font-bold text-earth-900">{product.stockQuantity} in stock</span>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -129,16 +139,22 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
                                     </div>
 
                                     <motion.button
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
+                                        disabled={!isAvailable}
+                                        whileHover={isAvailable ? { scale: 1.02 } : {}}
+                                        whileTap={isAvailable ? { scale: 0.98 } : {}}
                                         onClick={() => {
-                                            addToCart(product, quantity);
-                                            onClose();
+                                            if (isAvailable) {
+                                                addToCart(product, quantity);
+                                                onClose();
+                                            }
                                         }}
-                                        className="w-full bg-brand text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-xl shadow-brand/20 hover:bg-brand-dark transition-all"
+                                        className={`w-full py-5 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all ${!isAvailable
+                                                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                                : 'bg-brand text-white shadow-xl shadow-brand/20 hover:bg-brand-dark'
+                                            }`}
                                     >
                                         <ShoppingCart size={22} />
-                                        Add {quantity} to Cart — ${(product.price * quantity).toFixed(2)}
+                                        {isDiscontinued ? 'Discontinued' : isOutOfStock ? 'Out of Stock' : `Add ${quantity} to Cart — $${(product.price * quantity).toFixed(2)}`}
                                     </motion.button>
                                 </div>
                             </div>

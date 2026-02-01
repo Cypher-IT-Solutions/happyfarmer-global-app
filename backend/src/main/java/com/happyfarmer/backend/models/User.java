@@ -13,6 +13,10 @@ import java.util.UUID;
 @Setter
 public class User {
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_favorites", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "product_id"))
+    private java.util.Set<Product> favorites = new java.util.HashSet<>();
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;

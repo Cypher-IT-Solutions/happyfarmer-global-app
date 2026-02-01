@@ -15,4 +15,6 @@ public class CartItemDTO {
     private Integer quantity;
     private String imageUrl;
     private UUID farmerId;
+    private Boolean active;
+    private Integer maxStock;
 }

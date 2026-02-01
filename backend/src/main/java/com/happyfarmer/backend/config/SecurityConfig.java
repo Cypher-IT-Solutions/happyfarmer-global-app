@@ -39,6 +39,7 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/cart/**").authenticated()
                                                 .requestMatchers("/api/orders", "/api/orders/**").authenticated()
                                                 .requestMatchers("/api/products/**").authenticated()
+                                                .requestMatchers("/api/favorites/**").authenticated()
                                                 .anyRequest().authenticated())
                                 .cors(withDefaults())
                                 .csrf(csrf -> csrf.disable())

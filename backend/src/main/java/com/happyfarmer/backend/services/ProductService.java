@@ -22,7 +22,7 @@ public class ProductService {
     private final FarmerRepository farmerRepository;
 
     public List<ProductDTO> getAllProducts() {
-        return productRepository.findAll().stream().map(this::mapToDTO).toList();
+        return productRepository.findByActiveTrue().stream().map(this::mapToDTO).toList();
     }
 
     public List<ProductDTO> getProductsByFarmer(UUID farmerId) {
@@ -50,7 +50,7 @@ public class ProductService {
         return productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
-    private ProductDTO mapToDTO(Product product) {
+    public ProductDTO mapToDTO(Product product) {
         ProductDTO dto = new ProductDTO();
         dto.setId(product.getId());
         dto.setName(product.getName());

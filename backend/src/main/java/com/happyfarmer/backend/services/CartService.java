@@ -41,12 +41,23 @@ public class CartService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
+        if (Boolean.FALSE.equals(product.getActive())) {
+            throw new RuntimeException("Product is discontinued and cannot be added to cart.");
+        }
+
         Optional<CartItem> existingItem = cartItemRepository.findByUserAndProduct(user, product);
         CartItem cartItem;
         if (existingItem.isPresent()) {
             cartItem = existingItem.get();
-            cartItem.setQuantity(cartItem.getQuantity() + quantity);
+            int newQuantity = cartItem.getQuantity() + quantity;
+            if (newQuantity > product.getStockQuantity()) {
+                throw new RuntimeException("Insufficient stock. Only " + product.getStockQuantity() + " available.");
+            }
+            cartItem.setQuantity(newQuantity);
         } else {
+            if (quantity > product.getStockQuantity()) {
+                throw new RuntimeException("Insufficient stock. Only " + product.getStockQuantity() + " available.");
+            }
             cartItem = new CartItem();
             cartItem.setUser(user);
             cartItem.setProduct(product);
@@ -73,6 +84,10 @@ public class CartService {
         if (quantity <= 0) {
             cartItemRepository.delete(cartItem);
             return null;
+        }
+
+        if (quantity > product.getStockQuantity()) {
+            throw new RuntimeException("Insufficient stock. Only " + product.getStockQuantity() + " available.");
         }
 
         cartItem.setQuantity(quantity);
@@ -112,6 +127,8 @@ public class CartService {
         if (item.getProduct().getFarmer() != null) {
             dto.setFarmerId(item.getProduct().getFarmer().getId());
         }
+        dto.setActive(item.getProduct().getActive());
+        dto.setMaxStock(item.getProduct().getStockQuantity());
         return dto;
     }
 }

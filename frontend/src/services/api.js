@@ -235,6 +235,22 @@ export const changePassword = async (oldPassword, newPassword) => {
   return response.data;
 };
 
+// Favorites API
+export const getFavorites = async (userId) => {
+  const response = await api.get(`/users/${userId}/favorites`);
+  return response.data;
+};
+
+export const addFavorite = async (userId, productId) => {
+  const response = await api.post(`/users/${userId}/favorites/${productId}`);
+  return response.data;
+};
+
+export const removeFavorite = async (userId, productId) => {
+  const response = await api.delete(`/users/${userId}/favorites/${productId}`);
+  return response.data;
+};
+
 // Review API
 export const getFarmerReviews = async (farmerId) => {
   try {
