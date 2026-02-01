@@ -30,6 +30,8 @@ public class UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         user.setAddress(request.getAddress());
+        user.setLatitude(request.getLatitude());
+        user.setLongitude(request.getLongitude());
         user.setUpdatedAt(LocalDateTime.now());
         User saved = userRepository.save(user);
         return mapToResponse(saved);
@@ -46,6 +48,11 @@ public class UserService {
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
+    }
+
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     private UserProfileResponse mapToResponse(User user) {

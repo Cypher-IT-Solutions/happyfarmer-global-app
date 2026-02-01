@@ -3,13 +3,13 @@ import { useCart } from '../context/CartContext';
 import { motion } from 'framer-motion';
 import { ShoppingCart, Heart } from 'lucide-react';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, onViewDetails }) => {
     const { addToCart } = useCart();
 
     return (
         <motion.div
-            whileHover={{ y: -8 }}
-            className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group relative"
+            className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group relative cursor-pointer"
+            onClick={() => onViewDetails && onViewDetails(product)}
         >
             {/* Wishlist Button (Aesthetic only for now) */}
             <button className="absolute top-4 right-4 p-2 bg-white/80 backdrop-blur-sm rounded-full text-gray-400 hover:text-red-500 transition-colors z-10 shadow-sm">
@@ -60,7 +60,10 @@ const ProductCard = ({ product }) => {
 
                     <motion.button
                         whileTap={{ scale: 0.9 }}
-                        onClick={() => addToCart(product)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            addToCart(product);
+                        }}
                         className="p-4 bg-brand text-white rounded-2xl hover:bg-brand-dark transition-colors shadow-lg shadow-brand/20 group/btn overflow-hidden relative"
                     >
                         <ShoppingCart size={20} className="relative z-10" />

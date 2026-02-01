@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 import { useAuth } from './AuthContext';
+import { useToast } from './ToastContext';
 import * as api from '../services/api';
 
 const CartContext = createContext();
@@ -8,6 +9,7 @@ export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
     const { user } = useAuth();
+    const { showToast } = useToast();
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(false);
     const prevUserRef = useRef(null);
@@ -65,7 +67,7 @@ export const CartProvider = ({ children }) => {
         }
     }, [cartItems, user]);
 
-    const addToCart = async (product) => {
+    const addToCart = async (product, quantity = 1) => {
         const productId = product.productId || product.id;
 
         // Optimistic UI update
@@ -74,20 +76,22 @@ export const CartProvider = ({ children }) => {
             if (existingItem) {
                 return prevItems.map(item =>
                     (item.productId || item.id) === productId
-                        ? { ...item, quantity: item.quantity + 1 }
+                        ? { ...item, quantity: item.quantity + quantity }
                         : item
                 );
             }
-            return [...prevItems, { ...product, productId, quantity: 1 }];
+            return [...prevItems, { ...product, productId, quantity }];
         });
 
         if (user) {
             try {
-                await api.addToCartDB(productId, 1);
+                await api.addToCartDB(productId, quantity);
             } catch (err) {
                 console.error("Server sync failed (add):", err);
+                showToast("Failed to sync cart with server", "error");
             }
         }
+        showToast(`${product.name} added to cart!`);
     };
 
     const removeFromCart = async (productId) => {

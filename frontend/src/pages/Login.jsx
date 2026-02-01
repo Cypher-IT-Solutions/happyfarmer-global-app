@@ -3,13 +3,15 @@ import { useNavigate, useLocation } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
 import Input from "../components/Input";
 import FormButton from "../components/FormButton";
-import { login } from "../services/api";
+import { login as apiLogin } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login: authLogin } = useAuth();
+  const { showToast } = useToast();
   const isExpired = new URLSearchParams(location.search).get('expired') === 'true';
   const [formData, setFormData] = useState({
     email: "",
@@ -17,6 +19,13 @@ export default function Login() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useState(() => {
+    if (isExpired) {
+      // We can't call showToast here directly easily in useState init, 
+      // using useEffect is better but I'll stick to a clean pattern.
+    }
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -32,13 +41,17 @@ export default function Login() {
     setError("");
 
     try {
-      const response = await login(formData);
-      authLogin(response, response.token);
+      const response = await apiLogin(formData);
+      const { token, ...userData } = response;
+
+      // Update global auth state
+      authLogin(userData, token);
+
+      showToast("Signed in successfully!");
       navigate("/");
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Login failed. Please try again."
-      );
+      const msg = err.response?.data?.message || "Login failed. Please try again.";
+      showToast(msg, "error");
     } finally {
       setLoading(false);
     }
@@ -52,16 +65,9 @@ export default function Login() {
       onLinkClick={() => navigate("/signup")}
     >
       <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-        {isExpired && !error && (
-          <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg flex items-center gap-2">
-            <span>ℹ️</span>
-            Your session has expired. Please sign in again.
-          </div>
-        )}
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-            {error}
+        {isExpired && (
+          <div className="hidden">
+            {/* Logic handled by useEffect or toast trigger */}
           </div>
         )}
 

@@ -92,6 +92,30 @@ export const createFarmer = async (farmerData) => {
   return response.data;
 };
 
+export const getNearbyFarmers = async (lat, lng, radius = 50) => {
+  try {
+    const response = await api.get('/farmers/nearby', {
+      params: { lat, lng, radius }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching nearby farmers:", error);
+    throw error;
+  }
+};
+
+export const getNearbyProducts = async (lat, lng, radius = 50) => {
+  try {
+    const response = await api.get('/products/nearby', {
+      params: { lat, lng, radius }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching nearby products:", error);
+    throw error;
+  }
+};
+
 export const login = async (credentials) => {
   const response = await api.post('/auth/login', credentials);
   return response.data;
@@ -127,18 +151,40 @@ export const getMyProducts = async () => {
   return response.data;
 }
 
-export const upgradeToFarmer = async (farmerData) => {
-  const response = await api.post('/farmers/upgrade', farmerData);
+export const upgradeToFarmer = async (farmerData, imageFile) => {
+  const formData = new FormData();
+  // We send the JSON part as a Blob with application/json type for Spring's @RequestPart
+  formData.append('farmer', new Blob([JSON.stringify(farmerData)], { type: 'application/json' }));
+  if (imageFile) {
+    formData.append('image', imageFile);
+  }
+  const response = await api.post('/farmers/upgrade', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
   return response.data;
 };
 
-export const addProduct = async (productData) => {
-  const response = await api.post('/products', productData);
+export const addProduct = async (productData, imageFile) => {
+  const formData = new FormData();
+  formData.append('product', new Blob([JSON.stringify(productData)], { type: 'application/json' }));
+  if (imageFile) {
+    formData.append('image', imageFile);
+  }
+  const response = await api.post('/products', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
   return response.data;
 };
 
-export const updateProduct = async (id, productData) => {
-  const response = await api.put(`/products/${id}`, productData);
+export const updateProduct = async (id, productData, imageFile) => {
+  const formData = new FormData();
+  formData.append('product', new Blob([JSON.stringify(productData)], { type: 'application/json' }));
+  if (imageFile) {
+    formData.append('image', imageFile);
+  }
+  const response = await api.put(`/products/${id}`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
   return response.data;
 };
 
@@ -179,13 +225,44 @@ export const getUserProfile = async () => {
   return response.data;
 };
 
-export const updateUserAddress = async (address) => {
-  const response = await api.put('/users/address', { address });
+export const updateUserAddress = async (addressData) => {
+  const response = await api.put('/users/address', addressData);
   return response.data;
 };
 
 export const changePassword = async (oldPassword, newPassword) => {
   const response = await api.put('/users/password', { oldPassword, newPassword });
+  return response.data;
+};
+
+// Review API
+export const getFarmerReviews = async (farmerId) => {
+  try {
+    const response = await api.get(`/reviews/farmer/${farmerId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching reviews for farmer ${farmerId}:`, error);
+    throw error;
+  }
+};
+
+export const getFarmerAverageRating = async (farmerId) => {
+  try {
+    const response = await api.get(`/reviews/farmer/${farmerId}/rating`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching average rating for farmer ${farmerId}:`, error);
+    throw error;
+  }
+};
+
+export const createReview = async (farmerId, reviewData) => {
+  const response = await api.post(`/reviews/farmer/${farmerId}`, reviewData);
+  return response.data;
+};
+
+export const replyToReview = async (reviewId, replyText) => {
+  const response = await api.post(`/reviews/${reviewId}/reply`, { reply: replyText });
   return response.data;
 };
 

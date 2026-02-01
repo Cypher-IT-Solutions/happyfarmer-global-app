@@ -5,10 +5,12 @@ import Input from "../components/Input";
 import FormButton from "../components/FormButton";
 import { register } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 
 export default function Signup() {
   const navigate = useNavigate();
   const { login: authLogin } = useAuth();
+  const { showToast } = useToast();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -31,12 +33,12 @@ export default function Signup() {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      showToast("Passwords do not match", "warning");
       return;
     }
 
     if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters");
+      showToast("Password must be at least 8 characters", "warning");
       return;
     }
 
@@ -46,12 +48,16 @@ export default function Signup() {
     try {
       const { confirmPassword, ...registerData } = formData;
       const response = await register(registerData);
-      authLogin(response, response.token);
-      navigate("/login");
+      const { token, ...userData } = response;
+
+      // Auto-login after signup
+      authLogin(userData, token);
+
+      showToast("Account created successfully!");
+      navigate("/");
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Registration failed. Please try again."
-      );
+      const msg = err.response?.data?.message || "Registration failed. Please try again.";
+      showToast(msg, "error");
     } finally {
       setLoading(false);
     }
@@ -65,11 +71,6 @@ export default function Signup() {
       onLinkClick={() => navigate("/login")}
     >
       <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-            {error}
-          </div>
-        )}
 
         <Input
           id="fullName"

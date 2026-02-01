@@ -18,4 +18,5 @@ public class ProductDTO {
     private String imageUrl;
     private Boolean active;
     private UUID farmerId;
+    private String farmerName;
 }

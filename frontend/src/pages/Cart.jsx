@@ -2,17 +2,19 @@ import { createOrder } from '../services/api';
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Cart = () => {
     const { cartItems, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCart();
-    const { isAuthenticated } = useAuth(); // Get auth state
+    const { isAuthenticated } = useAuth();
+    const { showToast } = useToast();
     const navigate = useNavigate();
     const [isCheckingOut, setIsCheckingOut] = useState(false);
 
     const handleCheckout = async () => {
         if (!isAuthenticated) {
-            alert("Please sign in to complete your order.");
+            showToast("Please sign in to complete your order.", "warning");
             navigate("/login");
             return;
         }
@@ -26,14 +28,11 @@ const Cart = () => {
             const ordersByFarmer = {};
 
             cartItems.forEach(item => {
-                // Ensure we have a valid farmer ID. 
-                // In ProductDTO, it's called farmerId. 
-                // In some older items, it might be in item.farmer.id
                 const farmerId = item.farmerId || item.farmer?.id;
 
                 if (!farmerId) {
                     console.error("Item missing farmerId:", item);
-                    return; // Skip items without farmerId
+                    return;
                 }
 
                 if (!ordersByFarmer[farmerId]) {
@@ -48,7 +47,7 @@ const Cart = () => {
             const farmerIds = Object.keys(ordersByFarmer).filter(id => id !== "undefined" && id !== "null");
 
             if (farmerIds.length === 0) {
-                alert("Error: Some items in your cart are missing farmer information. Please clear your cart and try again.");
+                showToast("Error: Some items in your cart are missing farmer information.", "error");
                 setIsCheckingOut(false);
                 return;
             }
@@ -66,13 +65,13 @@ const Cart = () => {
 
             await Promise.all(promises);
 
-            alert("Orders placed successfully!");
+            showToast("Orders placed successfully!");
             clearCart();
             navigate("/my-orders");
         } catch (error) {
             console.error("Checkout failed:", error);
             const errorMsg = error.response?.data?.message || "Check console for details.";
-            alert(`Failed to place order: ${errorMsg}`);
+            showToast(`Failed to place order: ${errorMsg}`, "error");
         } finally {
             setIsCheckingOut(false);
         }
@@ -101,15 +100,26 @@ const Cart = () => {
                     {cartItems.map((item) => (
                         <li key={item.id} className="px-4 py-4 sm:px-6 flex items-center justify-between">
                             <div className="flex items-center">
-                                <div className="h-16 w-16 bg-gray-100 rounded-md flex items-center justify-center text-2xl">
-                                    {/* Placeholder */}
-                                    🍎
+                                <div className="h-16 w-16 bg-gray-100 rounded-md overflow-hidden flex items-center justify-center text-2xl">
+                                    {item.imageUrl ? (
+                                        <img
+                                            src={item.imageUrl}
+                                            alt={item.name}
+                                            className="h-full w-full object-cover"
+                                        />
+                                    ) : (
+                                        <span>
+                                            {item.category === 'FRUIT' ? '🍎' :
+                                                item.category === 'VEGETABLE' ? '🥦' :
+                                                    item.category === 'DAIRY' ? '🥛' : '📦'}
+                                        </span>
+                                    )}
                                 </div>
                                 <div className="ml-4">
                                     <h3 className="text-lg font-medium text-gray-900">{item.name}</h3>
                                     <p className="text-sm text-gray-500">{item.unit}</p>
                                     <p className="text-sm font-medium text-gray-900">${item.price}</p>
-                                    <p className="text-xs text-gray-400">Farmer: {item.farmer?.name || 'Unknown'}</p>
+                                    <p className="text-xs text-gray-400 font-bold">Farmer: {item.farmerName || item.farmer?.name || 'Unknown'}</p>
                                 </div>
                             </div>
                             <div className="flex items-center space-x-4">

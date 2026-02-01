@@ -64,8 +64,17 @@ public class ProductService {
         dto.setActive(product.getActive());
         if (product.getFarmer() != null) {
             dto.setFarmerId(product.getFarmer().getId());
+            dto.setFarmerName(product.getFarmer().getFarmName() != null ? product.getFarmer().getFarmName()
+                    : product.getFarmer().getUser().getFullName());
         }
         return dto;
+    }
+
+    public List<ProductDTO> getNearbyProducts(double latitude, double longitude, double radiusKm) {
+        return productRepository.findNearbyProducts(latitude, longitude, radiusKm)
+                .stream()
+                .map(this::mapToDTO)
+                .toList();
     }
 
     public Product saveProduct(Product product) {

@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Shield, Lock, ArrowLeft, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { changePassword as changePasswordApi } from '../../services/api';
+import { useToast } from '../../context/ToastContext';
 
 const ChangePassword = () => {
-    const [saved, setSaved] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const { showToast } = useToast();
     const [formData, setFormData] = useState({
         oldPassword: '',
         newPassword: '',
@@ -15,19 +15,18 @@ const ChangePassword = () => {
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-        if (error) setError(null);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (formData.newPassword.length < 8) {
-            setError("New password must be at least 8 characters long.");
+            showToast("New password must be at least 8 characters long.", "warning");
             return;
         }
 
         if (formData.newPassword !== formData.confirmPassword) {
-            setError("Passwords do not match.");
+            showToast("Passwords do not match.", "warning");
             return;
         }
 
@@ -36,11 +35,11 @@ const ChangePassword = () => {
 
         try {
             await changePasswordApi(formData.oldPassword, formData.newPassword);
-            setSaved(true);
+            showToast("Password updated successfully!");
             setFormData({ oldPassword: '', newPassword: '', confirmPassword: '' });
-            setTimeout(() => setSaved(false), 5000);
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to update password. Please check your current password.");
+            const msg = err.response?.data?.message || "Failed to update password. Please check your current password.";
+            showToast(msg, "error");
         } finally {
             setLoading(false);
         }
@@ -66,19 +65,6 @@ const ChangePassword = () => {
                 </div>
 
                 <div className="p-8">
-                    {saved && (
-                        <div className="mb-6 p-4 bg-green-50 rounded-2xl border border-green-100 flex items-center gap-3 text-green-700 animate-in fade-in slide-in-from-top-4">
-                            <CheckCircle2 size={18} />
-                            <span className="text-sm font-bold">Password updated successfully!</span>
-                        </div>
-                    )}
-
-                    {error && (
-                        <div className="mb-6 p-4 bg-red-50 rounded-2xl border border-red-100 flex items-center gap-3 text-red-700 animate-in fade-in slide-in-from-top-4">
-                            <AlertCircle size={18} />
-                            <span className="text-sm font-bold">{error}</span>
-                        </div>
-                    )}
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-2">
