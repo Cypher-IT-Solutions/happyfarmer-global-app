@@ -25,12 +25,39 @@ const BecomeFarmer = () => {
         contactEmail: user?.email || '',
         contactPhone: user?.phoneNumber || '',
         address: '',
+        latitude: null,
+        longitude: null,
         offersDelivery: false,
         deliveryRadiusKm: 10,
         deliveryFeeBase: 5.00,
         offersPickup: true,
         pickupInstructions: ''
     });
+
+    const [profileImage, setProfileImage] = useState(null);
+    const [locationStatus, setLocationStatus] = useState('Requesting location...');
+
+    // Request geolocation on component mount
+    useEffect(() => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setFormData(prev => ({
+                        ...prev,
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    }));
+                    setLocationStatus('Location captured ✓');
+                },
+                (error) => {
+                    console.warn('Geolocation denied or unavailable:', error);
+                    setLocationStatus('Location unavailable - will geocode address');
+                }
+            );
+        } else {
+            setLocationStatus('Geolocation not supported - will geocode address');
+        }
+    }, []);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -46,7 +73,7 @@ const BecomeFarmer = () => {
         setError(null);
 
         try {
-            const response = await upgradeToFarmer(formData);
+            const response = await upgradeToFarmer(formData, profileImage);
             // Response structure is AuthResponse: {token, email, fullName, role, message}
             updateUser({
                 email: response.email,
@@ -208,6 +235,16 @@ const BecomeFarmer = () => {
                                     />
                                 </div>
                             )}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Profile / Farm Image</label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setProfileImage(e.target.files[0])}
+                                className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                            />
                         </div>
 
                         {error && (

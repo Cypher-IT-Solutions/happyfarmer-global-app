@@ -20,4 +20,13 @@ jwt:
   # 24 hours (86400000 ms) is the current default in JwtService.
   # Adjust this value to change how long the token remains valid.
   expiration: 86400000
-  # secret: your-secret-here (already has a default in code)
+
+supabase:
+  s3:
+    endpoint: https://eoftjswajkmkextmlgma.storage.supabase.co/storage/v1/s3
+    access-key: f6eefadff613860df68f52669d16f976
+    secret-key: 15630a641689f6b40805e85654f201229eaf6ddc8af42c15dea879f353c0b814
+    region: us-east-1 # Supabase S3 usually works with any region, us-east-1 is standard default
+    buckets:
+      products: product-images
+      profiles: profile-images

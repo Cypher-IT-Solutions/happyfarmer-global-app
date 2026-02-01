@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Home, Building, Globe, ArrowLeft, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { getUserProfile, updateUserAddress } from '../../services/api';
+import { useToast } from '../../context/ToastContext';
 
 const UpdateAddress = () => {
-    const [saved, setSaved] = useState(false);
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);
-    const [error, setError] = useState(null);
+    const { showToast } = useToast();
     const [address, setAddress] = useState('');
+    const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
+    const [locationStatus, setLocationStatus] = useState('idle');
 
     useEffect(() => {
         const fetchCurrentAddress = async () => {
@@ -24,17 +26,43 @@ const UpdateAddress = () => {
         fetchCurrentAddress();
     }, []);
 
+    const requestLocation = () => {
+        setLocationStatus('requesting');
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setCoordinates({
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    });
+                    setLocationStatus('success');
+                    showToast('Location captured!');
+                },
+                (error) => {
+                    console.error('Geolocation error:', error);
+                    setLocationStatus('error');
+                    showToast('Location access denied', 'warning');
+                }
+            );
+        } else {
+            setLocationStatus('unsupported');
+            showToast('Geolocation not supported', 'warning');
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setError(null);
 
         try {
-            await updateUserAddress(address);
-            setSaved(true);
-            setTimeout(() => setSaved(false), 5000);
+            await updateUserAddress({
+                address,
+                latitude: coordinates.lat,
+                longitude: coordinates.lng
+            });
+            showToast("Address updated successfully!");
         } catch (err) {
-            setError("Failed to update address. Please try again.");
+            showToast("Failed to update address. Please try again.", "error");
             console.error(err);
         } finally {
             setLoading(false);
@@ -61,19 +89,6 @@ const UpdateAddress = () => {
                 </div>
 
                 <div className="p-8">
-                    {saved && (
-                        <div className="mb-6 p-4 bg-green-50 rounded-2xl border border-green-100 flex items-center gap-3 text-green-700 animate-in fade-in slide-in-from-top-4">
-                            <CheckCircle2 size={18} />
-                            <span className="text-sm font-bold">Address saved successfully!</span>
-                        </div>
-                    )}
-
-                    {error && (
-                        <div className="mb-6 p-4 bg-red-50 rounded-2xl border border-red-100 flex items-center gap-3 text-red-700 font-bold text-sm">
-                            <AlertCircle size={18} />
-                            {error}
-                        </div>
-                    )}
 
                     {fetching ? (
                         <div className="flex justify-center py-12">
@@ -96,6 +111,26 @@ const UpdateAddress = () => {
                                         required
                                     />
                                 </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-xs font-black uppercase tracking-wider text-gray-400 ml-1">Location (Optional)</label>
+                                <button
+                                    type="button"
+                                    onClick={requestLocation}
+                                    disabled={locationStatus === 'requesting'}
+                                    className="w-full py-3 px-4 bg-gray-50 border border-gray-100 rounded-2xl hover:bg-gray-100 transition-all font-medium text-sm flex items-center justify-center gap-2 disabled:opacity-50"
+                                >
+                                    <MapPin size={16} />
+                                    {locationStatus === 'requesting' ? 'Getting location...' :
+                                        locationStatus === 'success' ? '✓ Location captured' :
+                                            'Use My Location'}
+                                </button>
+                                {locationStatus === 'success' && (
+                                    <p className="text-xs text-green-600 ml-1">
+                                        Coordinates will be saved for better recommendations
+                                    </p>
+                                )}
                             </div>
 
                             <div className="pt-4">

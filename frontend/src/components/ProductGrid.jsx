@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import ProductCard from './ProductCard';
 import { ChevronRight } from 'lucide-react';
 
-const ProductGrid = ({ title, products, categoryId }) => {
+const ProductGrid = ({ title, products, onViewDetails }) => {
     if (!products || products.length === 0) return null;
 
     return (
@@ -26,7 +26,7 @@ const ProductGrid = ({ title, products, categoryId }) => {
                         viewport={{ once: true }}
                         transition={{ duration: 0.5, delay: index * 0.1 }}
                     >
-                        <ProductCard product={product} />
+                        <ProductCard product={product} onViewDetails={onViewDetails} />
                     </motion.div>
                 ))}
             </div>

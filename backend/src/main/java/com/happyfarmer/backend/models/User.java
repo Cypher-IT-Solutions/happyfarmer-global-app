@@ -8,8 +8,9 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name= "users")
-@Getter @Setter
+@Table(name = "users")
+@Getter
+@Setter
 public class User {
 
     @Id
@@ -30,6 +31,8 @@ public class User {
 
     private String profileImageUrl;
     private String address;
+    private Double latitude;
+    private Double longitude;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

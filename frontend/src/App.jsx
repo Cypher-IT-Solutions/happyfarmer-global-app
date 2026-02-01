@@ -12,6 +12,8 @@ import FarmerList from "./pages/FarmerList";
 import FarmerDetail from "./pages/FarmerDetail";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
+import { ToastProvider } from "./context/ToastContext";
+import ToastContainer from "./components/ui/Toast";
 import Cart from "./pages/Cart";
 import FarmerDashboard from './pages/FarmerDashboard';
 import FarmerProducts from './pages/FarmerProducts';
@@ -24,30 +26,33 @@ import InactivityTimer from './components/InactivityTimer';
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <Router>
-          <InactivityTimer timeout={1800000} /> {/* 30 minutes timeout */}
-          <Routes>
-            <Route element={<Layout />}>
-              <Route path="/" element={<Home />} />
-              <Route path="/farmers" element={<FarmerList />} />
-              <Route path="/farmers/:id" element={<FarmerDetail />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/dashboard" element={<FarmerDashboard />} />
-              <Route path="/products" element={<FarmerProducts />} />
-              <Route path="/my-orders" element={<MyOrders />} />
-              <Route path="/become-farmer" element={<BecomeFarmer />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/settings/password" element={<ChangePassword />} />
-              <Route path="/settings/address" element={<UpdateAddress />} />
-            </Route>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-          </Routes>
-        </Router>
-      </CartProvider>
-    </AuthProvider>
+    <ToastProvider>
+      <AuthProvider>
+        <CartProvider>
+          <Router>
+            <ToastContainer />
+            <InactivityTimer timeout={1800000} /> {/* 30 minutes timeout */}
+            <Routes>
+              <Route element={<Layout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/farmers" element={<FarmerList />} />
+                <Route path="/farmers/:id" element={<FarmerDetail />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/dashboard" element={<FarmerDashboard />} />
+                <Route path="/products" element={<FarmerProducts />} />
+                <Route path="/my-orders" element={<MyOrders />} />
+                <Route path="/become-farmer" element={<BecomeFarmer />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/settings/password" element={<ChangePassword />} />
+                <Route path="/settings/address" element={<UpdateAddress />} />
+              </Route>
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+            </Routes>
+          </Router>
+        </CartProvider>
+      </AuthProvider>
+    </ToastProvider>
   );
 }
 

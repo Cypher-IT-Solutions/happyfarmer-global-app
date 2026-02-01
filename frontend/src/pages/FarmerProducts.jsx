@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getMyProducts, addProduct, updateProduct, deleteProduct } from '../services/api';
+import { useToast } from '../context/ToastContext';
 import ProductForm from '../components/ProductForm';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -8,6 +9,7 @@ const FarmerProducts = () => {
     const { user } = useAuth();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { showToast } = useToast();
     const [error, setError] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [currentProduct, setCurrentProduct] = useState(null);
@@ -55,25 +57,28 @@ const FarmerProducts = () => {
             try {
                 await deleteProduct(id);
                 setProducts(products.filter(p => p.id !== id));
+                showToast("Product deleted successfully");
             } catch (err) {
-                alert("Failed to delete product");
+                showToast("Failed to delete product", "error");
             }
         }
     };
 
-    const handleFormSubmit = async (formData) => {
+    const handleFormSubmit = async (formData, imageFile) => {
         try {
             if (isEditing) {
-                const updated = await updateProduct(currentProduct.id, formData);
+                const updated = await updateProduct(currentProduct.id, formData, imageFile);
                 setProducts(products.map(p => p.id === updated.id ? updated : p));
+                showToast("Product updated successfully!");
             } else {
-                const newProduct = await addProduct(formData);
+                const newProduct = await addProduct(formData, imageFile);
                 setProducts([...products, newProduct]);
+                showToast("Product listed successfully!");
             }
             setShowForm(false);
         } catch (err) {
             console.error(err);
-            alert("Failed to save product");
+            showToast("Failed to save product", "error");
         }
     };
 

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { getFarmerOrders, updateOrderStatus } from '../services/api';
+import ReviewList from '../components/reviews/ReviewList';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
@@ -258,8 +259,30 @@ const FarmerDashboard = () => {
                         </p>
                     </div>
                 ) : (
-                    <OrdersTable orders={orders} onStatusUpdate={handleStatusUpdate} />
+                    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden mb-10">
+                        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+                            <h2 className="text-xl font-bold text-gray-900">Recent Orders</h2>
+                            <Button variant="ghost" size="sm" className="text-primary-600">View All</Button>
+                        </div>
+                        <OrdersTable orders={orders} onStatusUpdate={handleStatusUpdate} />
+                    </div>
                 )}
+
+                {/* Reviews Section */}
+                <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 rounded-lg bg-yellow-50">
+                            <TrendingUp className="h-6 w-6 text-yellow-600" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-gray-900">Customer Feedback</h2>
+                    </div>
+                    {user?.id && (
+                        <ReviewList
+                            farmerId={user.id}
+                            isFarmerView={true}
+                        />
+                    )}
+                </div>
             </main>
         </div>
     );

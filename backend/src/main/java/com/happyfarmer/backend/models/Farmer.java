@@ -42,4 +42,5 @@ public class Farmer {
     private String pickupInstructions;
 
     private Boolean isVerified = false;
+    private String imageUrl;
 }
