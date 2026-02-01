@@ -40,4 +40,21 @@ public class UserController {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
+
+    @PostMapping("/{id}/favorites/{productId}")
+    public ResponseEntity<?> addFavorite(@PathVariable java.util.UUID id, @PathVariable java.util.UUID productId) {
+        userService.addFavorite(id, productId);
+        return ResponseEntity.ok().body(Map.of("message", "Product added to favorites"));
+    }
+
+    @DeleteMapping("/{id}/favorites/{productId}")
+    public ResponseEntity<?> removeFavorite(@PathVariable java.util.UUID id, @PathVariable java.util.UUID productId) {
+        userService.removeFavorite(id, productId);
+        return ResponseEntity.ok().body(Map.of("message", "Product removed from favorites"));
+    }
+
+    @GetMapping("/{id}/favorites")
+    public ResponseEntity<?> getFavorites(@PathVariable java.util.UUID id) {
+        return ResponseEntity.ok(userService.getFavorites(id));
+    }
 }

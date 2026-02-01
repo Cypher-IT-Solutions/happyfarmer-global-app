@@ -1,19 +1,40 @@
 import React from 'react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { ShoppingCart, Heart } from 'lucide-react';
 
 const ProductCard = ({ product, onViewDetails }) => {
     const { addToCart } = useCart();
+    const { favorites, toggleFavorite, isAuthenticated } = useAuth(); // Get favorites from context
+
+    const isDiscontinued = product.active === false;
+    const isOutOfStock = !isDiscontinued && product.stockQuantity === 0;
+    const isAvailable = !isDiscontinued && !isOutOfStock;
+
+    // Check if this product is in favorites
+    const isLiked = favorites?.some(f => f.id === product.id);
 
     return (
         <motion.div
-            className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group relative cursor-pointer"
-            onClick={() => onViewDetails && onViewDetails(product)}
+            className={`bg-white rounded-3xl overflow-hidden shadow-sm transition-all duration-300 border border-gray-100 group relative cursor-pointer ${!isAvailable ? 'opacity-75 grayscale-[0.5]' : 'hover:shadow-xl'}`}
+            onClick={() => isAvailable && onViewDetails && onViewDetails(product)}
         >
-            {/* Wishlist Button (Aesthetic only for now) */}
-            <button className="absolute top-4 right-4 p-2 bg-white/80 backdrop-blur-sm rounded-full text-gray-400 hover:text-red-500 transition-colors z-10 shadow-sm">
-                <Heart size={18} />
+            {/* Wishlist Button */}
+            <button
+                onClick={(e) => {
+                    e.stopPropagation();
+                    if (isAuthenticated) {
+                        toggleFavorite(product);
+                    } else {
+                        // Optional: Navigate to login
+                        alert("Please sign in to save favorites");
+                    }
+                }}
+                className={`absolute top-4 right-4 p-2 rounded-full transition-colors z-10 shadow-sm ${isLiked ? 'bg-red-50 text-red-500' : 'bg-white/80 backdrop-blur-sm text-gray-400 hover:text-red-500'
+                    }`}
+            >
+                <Heart size={18} fill={isLiked ? "currentColor" : "none"} />
             </button>
 
             {/* Image Container */}
@@ -32,8 +53,24 @@ const ProductCard = ({ product, onViewDetails }) => {
                     </div>
                 )}
 
+                {/* Overlays for Availability */}
+                {isDiscontinued && (
+                    <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center z-20">
+                        <span className="px-4 py-2 bg-red-100 text-red-700 text-xs font-bold uppercase rounded-full shadow-sm tracking-widest border border-red-200">
+                            Discontinued
+                        </span>
+                    </div>
+                )}
+                {isOutOfStock && (
+                    <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center z-20">
+                        <span className="px-4 py-2 bg-orange-100 text-orange-700 text-xs font-bold uppercase rounded-full shadow-sm tracking-widest border border-orange-200">
+                            Out of Stock
+                        </span>
+                    </div>
+                )}
+
                 {/* Category Badge */}
-                <div className="absolute bottom-4 left-4">
+                <div className="absolute bottom-4 left-4 z-10">
                     <span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-black tracking-widest text-earth-900 uppercase shadow-sm">
                         {product.category}
                     </span>
@@ -59,15 +96,18 @@ const ProductCard = ({ product, onViewDetails }) => {
                     </div>
 
                     <motion.button
-                        whileTap={{ scale: 0.9 }}
+                        disabled={!isAvailable}
+                        whileTap={isAvailable ? { scale: 0.9 } : {}}
                         onClick={(e) => {
                             e.stopPropagation();
-                            addToCart(product);
+                            if (isAvailable) addToCart(product);
                         }}
-                        className="p-4 bg-brand text-white rounded-2xl hover:bg-brand-dark transition-colors shadow-lg shadow-brand/20 group/btn overflow-hidden relative"
+                        className={`p-4 rounded-2xl transition-colors shadow-lg group/btn overflow-hidden relative ${!isAvailable
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'
+                            : 'bg-brand text-white hover:bg-brand-dark shadow-brand/20'}`}
                     >
                         <ShoppingCart size={20} className="relative z-10" />
-                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
+                        {isAvailable && <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />}
                     </motion.button>
                 </div>
             </div>

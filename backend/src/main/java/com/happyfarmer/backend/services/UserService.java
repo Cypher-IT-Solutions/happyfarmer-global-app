@@ -65,4 +65,38 @@ public class UserService {
                 .phoneNumber(user.getPhoneNumber())
                 .build();
     }
+
+    @Autowired
+    private com.happyfarmer.backend.repositories.ProductRepository productRepository;
+
+    @Autowired
+    private ProductService productService;
+
+    public void addFavorite(java.util.UUID userId, java.util.UUID productId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        com.happyfarmer.backend.models.Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        user.getFavorites().add(product);
+        userRepository.save(user);
+    }
+
+    public void removeFavorite(java.util.UUID userId, java.util.UUID productId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        com.happyfarmer.backend.models.Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        user.getFavorites().remove(product);
+        userRepository.save(user);
+    }
+
+    public java.util.Set<com.happyfarmer.backend.dto.ProductDTO> getFavorites(java.util.UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getFavorites().stream()
+                .map(productService::mapToDTO)
+                .collect(java.util.stream.Collectors.toSet());
+    }
 }

@@ -23,6 +23,7 @@ import Profile from './pages/Profile';
 import ChangePassword from './pages/settings/ChangePassword';
 import UpdateAddress from './pages/settings/UpdateAddress';
 import InactivityTimer from './components/InactivityTimer';
+import Favorites from './pages/Favorites';
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/settings/password" element={<ChangePassword />} />
                 <Route path="/settings/address" element={<UpdateAddress />} />
+                <Route path="/favorites" element={<Favorites />} />
               </Route>
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
